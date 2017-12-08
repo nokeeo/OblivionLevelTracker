@@ -1,0 +1,94 @@
+; A Script that displays the the player's level progress and potential gains to each attribute on level up.
+; Author: Nokeeo
+; Licence: MIT
+
+scriptName NKLevelChecker
+
+float fQuestDelayTime
+short showMenu
+short hasSetup
+short levelCheckKeyBinding
+
+
+string_var finalText
+short currAttrVal
+string_var currAttrValStr
+string_var currAttrMod
+string_var playerSkillProgress
+short attrModeCounter
+short currAttrIndex
+
+begin GameMode
+	set fQuestDelayTime to 0.001
+
+	if hasSetup == 0
+		let hasSetup := 1
+		RunBatchScript "data/ini/NKLevelTracker.ini"
+	endif
+	
+	; Make sure a game message box is not open
+	if IsGameMessageBox == 0
+
+		; If the desired key is pressed show the menu
+		if IsKeyPressed3 levelCheckKeyBinding && showMenu != 1
+			let showMenu := 1
+		endif
+
+		; Setup and show menu
+		if showMenu == 1 && (IsGameMessageBox == 0)
+			; Get level Progress
+			
+			; Get Abilites
+			let currAttrIndex := 6 - attrModeCounter
+
+			; Create finalText String
+			if currAttrIndex == 6
+				let playerSkillProgress := $(
+				let finalText := sv_construct "%r%r"
+			endIf
+	
+			; Get the current Attrs Value
+			let currAttrValStr := $(GetPCAttributeBonusC currAttrIndex)
+			let currAttrVal := sv_ToNumeric currAttrValStr
+	
+			; Determine Attribute mod
+			if currAttrVal < 1
+				let currAttrMod := "+1"
+			elseif currAttrVal < 5
+				let currAttrMod := "+2"
+			elseif currAttrVal < 8
+				let currAttrMod := "+3"
+			elseif currAttrVal < 10
+				let currAttrMod := "+4"
+			else
+				let currAttrMod := "+5"
+			endif			
+		
+			; Prepend to finalText
+			sv_Insert "%r%r%v: %z (%z)" currAttrIndex currAttrValStr currAttrMod finalText
+	
+			; Update attribute incrementer
+			let attrModeCounter := (attrModeCounter + 1)
+
+			; If we are on the last attribute cleanup and display messagebox
+			if currAttrIndex == 0
+				let showMenu := 0
+				let attrModeCounter := 0
+				MessageBox $finalText
+				sv_Destruct finalText
+			endif
+
+			; General cleanup after each loop
+			sv_Destruct currAttrValStr
+			sv_Destruct currAttrMod
+		endIf
+	endif
+end 
+
+begin MenuMode
+	if IsKeyPressed3 levelCheckKeyBinding
+		CloseAllMenus
+		; Halt script for at least 0.25 seconds
+		set fQuestDelayTime to 0.25
+	endif
+end
