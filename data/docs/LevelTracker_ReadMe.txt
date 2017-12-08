@@ -43,6 +43,10 @@ Install the mod using OBMM
 2. Double-click the name of the mod in the right-hand side of the OBMM screen.
 (icon should turn blue)
 
+Usage
+=======
+Open the tracking menu by pressing the '\' character
+
 Configuration
 =======
 You  can configure the key binding for the menu in the file 'Oblivion/data/ini/NKLevelTracker.ini'. 
